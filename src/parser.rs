@@ -12,14 +12,21 @@ type Input<'a> = &'a str;
 
 type Result<'a, O = Input<'a>> = nom::IResult<Input<'a>, O>;
 
+#[derive(Debug, Clone)]
 pub struct Element<'a> {
+    /// The name of the element. E.g. `REAPER_PROJECT`, `TRACK`, `FXCHAIN`, `VST`, `CONTAINER`
     pub tag: &'a str,
+    /// List of attributes for this element.
     pub attr: Vec<&'a str>,
+    /// Children of this element. See [Child].
     pub children: Vec<Child<'a>>,
 }
 
+#[derive(Debug, Clone)]
 pub enum Child<'a> {
+    /// An arbitrary line of text, split into a [String] list using RPP's string quoting rules.
     Line(Vec<&'a str>),
+    /// A subelement.
     Element(Element<'a>),
 }
 
@@ -101,6 +108,7 @@ fn element(i: Input) -> Result<Element> {
     Ok((i, element))
 }
 
+/// Parse an RPP element into an [Element].
 pub fn parse_element(i: Input) -> std::result::Result<Element, nom::error::Error<Input>> {
     all_consuming(delimited(multispace0, element, multispace0))(i)
         .finish()

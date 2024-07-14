@@ -48,6 +48,7 @@ fn serialise_term(text: &str) -> Cow<str> {
     format!("{}{}{}", quote_char, text, quote_char).into()
 }
 
+/// Serialise an element back to a [String] following the RPP format.
 pub fn serialize_to_string(element: &Element) -> String {
     let mut buf = String::new();
     process(&mut buf, element, 0);

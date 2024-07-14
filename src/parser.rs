@@ -1,7 +1,7 @@
 use nom::{
-    bytes::complete::{take_till, take_while1},
+    bytes::complete::{take_till, take_till1, take_while1},
     character::{
-        complete::{char, one_of},
+        complete::{char, none_of, one_of},
         is_alphabetic,
     },
     sequence::delimited,
@@ -63,6 +63,13 @@ fn quoted_string(i: Input) -> Result {
     Ok((i, contents))
 }
 
+fn unquoted_string(i: Input) -> Result {
+    // first character must not be quote
+    none_of("\"'`")(i)?;
+    // now take characters until we reach space / end of line
+    take_till1(|x| x == ' ' || x == '\n' || x == '\r')(i)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -114,6 +121,47 @@ mod tests {
         fn test_06() {
             let input = "`asd asjhd b\nasjh ` 'hello'";
             assert!(quoted_string(input).is_err())
+        }
+    }
+
+    #[cfg(test)]
+    mod unquoted_string {
+        use super::*;
+
+        #[test]
+        fn test_01() {
+            let input = "apple";
+            let expected = "apple";
+            let (_, result) = unquoted_string(input).unwrap();
+            assert_eq!(result, expected)
+        }
+
+        #[test]
+        fn test_02() {
+            let input = "hasquote''``' askjdla";
+            let expected = "hasquote''``'";
+            let (_, result) = unquoted_string(input).unwrap();
+            assert_eq!(result, expected)
+        }
+
+        #[test]
+        fn test_03() {
+            let input = "has space";
+            let expected = "has";
+            let (_, result) = unquoted_string(input).unwrap();
+            assert_eq!(result, expected)
+        }
+
+        #[test]
+        fn test_04() {
+            let input = "  leading space";
+            assert!(unquoted_string(input).is_err())
+        }
+
+        #[test]
+        fn test_05() {
+            let input = "'hello'";
+            assert!(unquoted_string(input).is_err())
         }
     }
 }

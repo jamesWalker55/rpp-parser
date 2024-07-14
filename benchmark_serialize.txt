@@ -1,0 +1,7 @@
+File: D:\Audio Projects (Reaper)\New\unwelcome school 2\unwelcome school 2_5.RPP
+
+b6a94bfbbdb2f2abfc108df621f702571a9443a2
+[debug]
+Did 30 loops. Total: 9.3126675s, Average: 310.42225ms
+[release]
+Did 30 loops. Total: 5.4119746s, Average: 180.399153ms

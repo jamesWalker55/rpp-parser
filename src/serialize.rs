@@ -1,7 +1,5 @@
-use itertools::Itertools;
-
 use crate::parser::{Child, Element};
-use std::borrow::Cow;
+use std::{borrow::Cow, iter};
 
 fn serialise_term(text: &str) -> Cow<str> {
     if text.is_empty() {
@@ -38,33 +36,46 @@ fn serialise_term(text: &str) -> Cow<str> {
 }
 
 pub fn serialize_to_string(element: &Element) -> String {
-    serialize_to_lines(element).join("\n")
+    process(element, 0).iter().map(|x| x.as_ref()).collect()
 }
 
-fn serialize_to_lines(element: &Element) -> Vec<String> {
-    let first_line = if element.attr.is_empty() {
-        format!("<{}", element.tag)
-    } else {
-        let attr = element.attr.iter().map(|x| serialise_term(x)).join(" ");
-        format!("<{} {}", element.tag, attr)
-    };
+fn process<'a>(element: &'a Element, indent_level: usize) -> Vec<Cow<'a, str>> {
+    let mut parts: Vec<Cow<'a, str>> = vec![];
 
-    let mut lines = vec![first_line];
+    // first line
+    parts.extend(iter::repeat(Cow::from("  ")).take(indent_level));
+    parts.push("<".into());
+    parts.push(element.tag.into());
+    parts.extend(
+        element
+            .attr
+            .iter()
+            .flat_map(|x| [" ".into(), serialise_term(x)]),
+    );
+    parts.push("\n".into());
 
     for child in element.children.iter() {
         match child {
             Child::Line(child) => {
-                let line = child.iter().map(|x| serialise_term(x)).join(" ");
-                lines.push(format!("  {line}"));
+                parts.extend(iter::repeat(Cow::from("  ")).take(indent_level + 1));
+                parts.extend(
+                    child
+                        .iter()
+                        .flat_map(|x| [" ".into(), serialise_term(x)])
+                        .skip(1),
+                );
+                parts.push("\n".into());
             }
             Child::Element(child) => {
-                let sublines = serialize_to_lines(&child);
-                lines.extend(sublines.iter().map(|x| format!("  {x}")));
+                parts.extend(process(&child, indent_level + 1));
+                parts.push("\n".into());
             }
         }
     }
 
-    lines.push(">".into());
+    // last line
+    parts.extend(iter::repeat(Cow::from("  ")).take(indent_level));
+    parts.push(">".into());
 
-    lines
+    parts
 }

@@ -17,3 +17,9 @@ e0d9dfce5f6d09fda7ae1c9848209a1f669ca604
 Did 30 loops. Total: 4.3730511s, Average: 145.76837ms
 [release]
 Did 30 loops. Total: 831.428ms, Average: 27.714266ms
+
+7c84cd01d4a071ac6911daa105d400f41919fb9f
+[debug]
+Did 30 loops. Total: 2.4901001s, Average: 83.003336ms
+[release]
+Did 30 loops. Total: 623.5644ms, Average: 20.78548ms

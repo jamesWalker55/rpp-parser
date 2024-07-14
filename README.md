@@ -1,5 +1,7 @@
 # rpp-parser
 
+[https://crates.io/crates/rpp-parser](https://crates.io/crates/rpp-parser)
+
 A parser for Reaper project files implemented using [nom](https://github.com/rust-bakery/nom).
 
 ## Performance

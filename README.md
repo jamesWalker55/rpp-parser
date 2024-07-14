@@ -2,6 +2,28 @@
 
 A parser for Reaper project files implemented using [nom](https://github.com/rust-bakery/nom).
 
+## Performance
+
+Parsing is MUCH faster in release builds. When parsing a 35MB project file:
+
+```plain
+[debug]
+Did 10 loops. Total: 10.9873765s, Average: 1.09873765s
+[release]
+Did 30 loops. Total: 1.6484316s, Average: 54.94772ms
+```
+
+When serializing the parsed 35MB project file:
+
+```plain
+[debug]
+Did 100 loops. Total: 7.2661435s, Average: 72.661435ms
+[release]
+Did 100 loops. Total: 1.7441848s, Average: 17.441848ms
+```
+
+(Results based on commit 994d04d30827397b78bab96c0df467145e7286d5)
+
 ## Usage
 
 ```rust

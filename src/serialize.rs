@@ -43,27 +43,38 @@ pub fn serialize_to_string(element: &Element) -> String {
 
 fn process<'a>(mut buf: &mut String, element: &'a Element, indent_level: usize) {
     // first line
-    buf.extend(iter::repeat(Cow::from("  ")).take(indent_level));
+    for _ in 0..indent_level {
+        buf.push_str("  ")
+    }
     buf.push('<');
     buf.push_str(element.tag);
-    buf.extend(
-        element
-            .attr
-            .iter()
-            .flat_map(|x| [" ".into(), serialise_term(x)]),
-    );
+
+    for x in &element.attr {
+        let x = serialise_term(x);
+        buf.push(' ');
+        buf.push_str(&x);
+    }
+
     buf.push('\n');
 
     for child in element.children.iter() {
         match child {
             Child::Line(child) => {
-                buf.extend(iter::repeat(Cow::from("  ")).take(indent_level + 1));
-                buf.extend(
-                    child
-                        .iter()
-                        .flat_map(|x| [" ".into(), serialise_term(x)])
-                        .skip(1),
-                );
+                for _ in 0..(indent_level + 1) {
+                    buf.push_str("  ")
+                }
+
+                let mut is_first = true;
+                for x in child {
+                    let x = serialise_term(x);
+                    if is_first {
+                        is_first = false;
+                    } else {
+                        buf.push(' ')
+                    }
+                    buf.push_str(&x);
+                }
+
                 buf.push('\n');
             }
             Child::Element(child) => {
@@ -74,6 +85,8 @@ fn process<'a>(mut buf: &mut String, element: &'a Element, indent_level: usize) 
     }
 
     // last line
-    buf.extend(iter::repeat(Cow::from("  ")).take(indent_level));
+    for _ in 0..indent_level {
+        buf.push_str("  ")
+    }
     buf.push('>');
 }

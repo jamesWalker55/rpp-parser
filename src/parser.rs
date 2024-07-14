@@ -2,8 +2,8 @@ use nom::{
     branch::alt,
     bytes::complete::{take_till, take_till1},
     character::complete::{char, line_ending, multispace0, none_of, one_of, space0, space1},
-    combinator::{all_consuming, not},
-    multi::many0,
+    combinator::all_consuming,
+    multi::{many0, many_till},
     sequence::{delimited, preceded, terminated, tuple},
     Finish, Parser,
 };
@@ -80,19 +80,20 @@ fn element(i: Input) -> Result<Element> {
         tuple((space0, line_ending)),
     )(i)?;
 
-    let (i, children) = many0(delimited(
-        // don't allow start of line to be closing tag '>'
-        tuple((space0, not(char('>')))),
-        alt((
-            element.map(|x| Child::Element(x)),
-            string_list.map(|x| Child::Line(x)),
-        )),
-        tuple((space0, line_ending)),
-    ))(i)?;
-
-    // element ends with a single line containing only '>'
-    // but this function isn't responsible for checking the newline
-    let (i, _) = tuple((space0, element_end))(i)?;
+    let (i, (children, _end)) = many_till(
+        // keep taking child elements until end of element
+        delimited(
+            space0,
+            alt((
+                element.map(|x| Child::Element(x)),
+                string_list.map(|x| Child::Line(x)),
+            )),
+            tuple((space0, line_ending)),
+        ),
+        // element ends with a single line containing only '>'
+        // but this function isn't responsible for checking the newline
+        tuple((space0, element_end)),
+    )(i)?;
 
     let element = Element {
         tag,

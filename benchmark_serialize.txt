@@ -11,3 +11,9 @@ b67be809c29a2b11411b69a7445271f973d41b6c
 Did 30 loops. Total: 6.6876705s, Average: 222.92235ms
 [release]
 Did 30 loops. Total: 2.739937s, Average: 91.331233ms
+
+e0d9dfce5f6d09fda7ae1c9848209a1f669ca604
+[debug]
+Did 30 loops. Total: 4.3730511s, Average: 145.76837ms
+[release]
+Did 30 loops. Total: 831.428ms, Average: 27.714266ms

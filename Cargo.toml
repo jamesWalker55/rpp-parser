@@ -2,6 +2,11 @@
 name = "rpp-parser"
 version = "0.1.0"
 edition = "2021"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+description = "Parser for Reaper's RPP project files"
+homepage = "https://github.com/jamesWalker55/rpp-parser"
+repository = "https://github.com/jamesWalker55/rpp-parser"
 
 [dependencies]
 itertools = "0.13.0"

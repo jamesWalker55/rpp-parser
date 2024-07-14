@@ -1,0 +1,43 @@
+File: D:\Audio Projects (Reaper)\New\unwelcome school 2\unwelcome school 2_5.RPP
+
+Python's rpp
+Did 10 loops. Total: 130.88817310333252s, Average: 13.088817310333251s
+
+7ebeb5dee3c39c47bb54f5cabec5986a68ecc480
+[debug]
+Did 10 loops. Total: 10.2273269s, Average: 1.02273269s
+[release]
+Did 30 loops. Total: 1.6372829s, Average: 54.576096ms
+
+212b9c19075509a64710201efe28240c770776d9
+[debug]
+Did 10 loops. Total: 10.9873765s, Average: 1.09873765s
+[release]
+Did 30 loops. Total: 1.6484316s, Average: 54.94772ms
+
+
+[The code used to benchmark]
+use std::{fs, ops::Div};
+
+mod parser;
+
+fn main() {
+    let path = r"D:\Audio Projects (Reaper)\New\unwelcome school 2\unwelcome school 2_5.RPP";
+    let rpp = fs::read_to_string(&path).unwrap();
+    println!("Loaded to string, parsing...");
+
+    let loops = 30;
+    let now = std::time::Instant::now();
+
+    for _ in 0..loops {
+        parser::parse_element(&rpp).unwrap();
+    }
+
+    let elapsed = now.elapsed();
+    println!(
+        "Did {} loops. Total: {:?}, Average: {:?}",
+        loops,
+        elapsed,
+        elapsed.div(loops)
+    );
+}

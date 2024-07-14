@@ -36,46 +36,44 @@ fn serialise_term(text: &str) -> Cow<str> {
 }
 
 pub fn serialize_to_string(element: &Element) -> String {
-    process(element, 0).iter().map(|x| x.as_ref()).collect()
+    let mut buf = String::new();
+    process(&mut buf, element, 0);
+    buf
 }
 
-fn process<'a>(element: &'a Element, indent_level: usize) -> Vec<Cow<'a, str>> {
-    let mut parts: Vec<Cow<'a, str>> = vec![];
-
+fn process<'a>(mut buf: &mut String, element: &'a Element, indent_level: usize) {
     // first line
-    parts.extend(iter::repeat(Cow::from("  ")).take(indent_level));
-    parts.push("<".into());
-    parts.push(element.tag.into());
-    parts.extend(
+    buf.extend(iter::repeat(Cow::from("  ")).take(indent_level));
+    buf.push('<');
+    buf.push_str(element.tag);
+    buf.extend(
         element
             .attr
             .iter()
             .flat_map(|x| [" ".into(), serialise_term(x)]),
     );
-    parts.push("\n".into());
+    buf.push('\n');
 
     for child in element.children.iter() {
         match child {
             Child::Line(child) => {
-                parts.extend(iter::repeat(Cow::from("  ")).take(indent_level + 1));
-                parts.extend(
+                buf.extend(iter::repeat(Cow::from("  ")).take(indent_level + 1));
+                buf.extend(
                     child
                         .iter()
                         .flat_map(|x| [" ".into(), serialise_term(x)])
                         .skip(1),
                 );
-                parts.push("\n".into());
+                buf.push('\n');
             }
             Child::Element(child) => {
-                parts.extend(process(&child, indent_level + 1));
-                parts.push("\n".into());
+                process(&mut buf, &child, indent_level + 1);
+                buf.push('\n');
             }
         }
     }
 
     // last line
-    parts.extend(iter::repeat(Cow::from("  ")).take(indent_level));
-    parts.push(">".into());
-
-    parts
+    buf.extend(iter::repeat(Cow::from("  ")).take(indent_level));
+    buf.push('>');
 }

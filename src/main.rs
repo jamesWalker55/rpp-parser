@@ -17,7 +17,7 @@ fn main() {
     fs::write("result.rpp", text).unwrap();
 
     println!("Benchmark loop");
-    let loops = 30;
+    let loops = 100;
     let now = std::time::Instant::now();
     for _ in 0..loops {
         serialize_to_string(&element);

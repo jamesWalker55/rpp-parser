@@ -20,6 +20,6 @@ Did 30 loops. Total: 831.428ms, Average: 27.714266ms
 
 7c84cd01d4a071ac6911daa105d400f41919fb9f
 [debug]
-Did 30 loops. Total: 2.4901001s, Average: 83.003336ms
+Did 100 loops. Total: 8.0133385s, Average: 80.133385ms
 [release]
-Did 30 loops. Total: 623.5644ms, Average: 20.78548ms
+Did 100 loops. Total: 1.9305675s, Average: 19.305675ms

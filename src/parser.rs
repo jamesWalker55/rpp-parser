@@ -1,48 +1,15 @@
 use nom::{
-    bytes::complete::{take_till, take_till1, take_while1},
-    character::{
-        complete::{char, none_of, one_of},
-        is_alphabetic,
-    },
-    sequence::delimited,
+    branch::alt,
+    bytes::complete::{take_till, take_till1},
+    character::complete::{char, line_ending, multispace0, none_of, one_of, space0, space1},
+    multi::many0,
+    sequence::{delimited, preceded, terminated, tuple},
+    Parser,
 };
-use thiserror::Error;
 
 type Input<'a> = &'a str;
 
-type Result<'a, O = Input<'a>> = nom::IResult<Input<'a>, O, ParseError<'a>>;
-
-#[derive(Error, Debug)]
-pub enum ParseError<'a> {
-    #[error("invalid string literal: {0}")]
-    MalformedString(Input<'a>),
-    #[error("invalid path: {0}")]
-    MalformedPath(Input<'a>),
-    #[error("only relative paths are allowed: {0}")]
-    NotRelativePath(Input<'a>),
-    #[error("invalid glob pattern: {0}")]
-    InvalidGlobPattern(Input<'a>),
-    #[error("unknown directive: {0}")]
-    UnknownDirective(Input<'a>),
-    #[error("hash char is not walter code: {0}")]
-    NonWALTERHash(Input<'a>),
-    #[error("incorrect #include syntax: {0}")]
-    MalformedIncludeDirective(Input<'a>),
-    #[error("incorrect #resource syntax: {0}")]
-    MalformedResourceDirective(Input<'a>),
-    #[error("invalid syntax: {0}")]
-    Nom(Input<'a>, nom::error::ErrorKind),
-}
-
-impl<'a> nom::error::ParseError<Input<'a>> for ParseError<'a> {
-    fn from_error_kind(input: Input<'a>, kind: nom::error::ErrorKind) -> Self {
-        ParseError::Nom(input.into(), kind)
-    }
-
-    fn append(_input: Input, _kind: nom::error::ErrorKind, other: Self) -> Self {
-        other
-    }
-}
+type Result<'a, O = Input<'a>> = nom::IResult<Input<'a>, O>;
 
 pub struct Element<'a> {
     tag: &'a str,
@@ -68,6 +35,74 @@ fn unquoted_string(i: Input) -> Result {
     none_of("\"'`")(i)?;
     // now take characters until we reach space / end of line
     take_till1(|x| x == ' ' || x == '\n' || x == '\r')(i)
+}
+
+fn string(i: Input) -> Result {
+    alt((unquoted_string, quoted_string))(i)
+}
+
+fn string_list(i: Input) -> Result<Vec<&str>> {
+    // get first element
+    let (i, first_element) = string(i)?;
+
+    // get the rest
+    let (i, mut other_elements) = many0(preceded(space1, string))(i)?;
+
+    // prepend first element into list
+    // TODO: inserting is inefficient, think of way to improve this
+    other_elements.insert(0, first_element);
+
+    Ok((i, other_elements))
+}
+
+fn element_start(i: Input) -> Result<()> {
+    char('<')(i).map(|(rest, _)| (rest, ()))
+}
+
+fn element_end(i: Input) -> Result<()> {
+    char('>')(i).map(|(rest, _)| (rest, ()))
+}
+
+fn element_tag(i: Input) -> Result {
+    unquoted_string(i)
+}
+
+fn element(i: Input) -> Result<Element> {
+    // line starts with '<TAG'
+    let (i, _) = element_start(i)?;
+    let (i, tag) = element_tag(i)?;
+
+    // rest of line is attr
+    // (consumes newline)
+    let (i, attr) = terminated(
+        many0(preceded(space1, string)),
+        tuple((space0, line_ending)),
+    )(i)?;
+
+    let (i, children) = many0(delimited(
+        space0,
+        alt((
+            element.map(|x| Child::Element(x)),
+            string_list.map(|x| Child::Line(x)),
+        )),
+        tuple((space0, line_ending)),
+    ))(i)?;
+
+    // element ends with a single line containing only '>'
+    // but this function isn't responsible for checking the newline
+    let (i, _) = tuple((space0, element_end))(i)?;
+
+    let element = Element {
+        tag,
+        attr,
+        children,
+    };
+
+    Ok((i, element))
+}
+
+pub fn reaper_project(i: Input) -> Result<Element> {
+    delimited(multispace0, element, multispace0)(i)
 }
 
 #[cfg(test)]

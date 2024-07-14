@@ -2,9 +2,10 @@ use nom::{
     branch::alt,
     bytes::complete::{take_till, take_till1},
     character::complete::{char, line_ending, multispace0, none_of, one_of, space0, space1},
+    combinator::all_consuming,
     multi::many0,
     sequence::{delimited, preceded, terminated, tuple},
-    Parser,
+    Finish, Parser,
 };
 
 type Input<'a> = &'a str;
@@ -101,8 +102,10 @@ fn element(i: Input) -> Result<Element> {
     Ok((i, element))
 }
 
-pub fn reaper_project(i: Input) -> Result<Element> {
-    delimited(multispace0, element, multispace0)(i)
+pub fn parse_element(i: Input) -> std::result::Result<Element, nom::error::Error<Input>> {
+    all_consuming(delimited(multispace0, element, multispace0))(i)
+        .finish()
+        .map(|(_, element)| element)
 }
 
 #[cfg(test)]

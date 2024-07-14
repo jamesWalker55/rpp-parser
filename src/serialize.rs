@@ -14,18 +14,31 @@ fn serialise_term(text: &str) -> Cow<str> {
     }
 
     let first_char = text.chars().next().unwrap();
-    let needs_to_be_quoted = (first_char == '\'' || first_char == '"') || text.contains(' ');
+    let mut needs_to_be_quoted = first_char == '\'' || first_char == '"';
+    if !needs_to_be_quoted {
+        return text;
+    }
+
+    let mut has_dbl_quote = false;
+    let mut has_sgl_quote = false;
+    for x in text.chars() {
+        if x == ' ' {
+            needs_to_be_quoted = true;
+        } else if x == '\'' {
+            has_sgl_quote = true;
+        } else if x == '"' {
+            has_dbl_quote = true;
+        }
+    }
+
     if !needs_to_be_quoted {
         return text;
     }
 
     let quote_char = {
-        let has_dbl = text.contains('"');
-        let has_sgl = text.contains('\'');
-
-        if has_dbl && has_sgl {
+        if has_dbl_quote && has_sgl_quote {
             '`'
-        } else if has_dbl {
+        } else if has_dbl_quote {
             '\''
         } else {
             '"'

@@ -5,3 +5,9 @@ b6a94bfbbdb2f2abfc108df621f702571a9443a2
 Did 30 loops. Total: 9.3126675s, Average: 310.42225ms
 [release]
 Did 30 loops. Total: 5.4119746s, Average: 180.399153ms
+
+b67be809c29a2b11411b69a7445271f973d41b6c
+[debug]
+Did 30 loops. Total: 6.6876705s, Average: 222.92235ms
+[release]
+Did 30 loops. Total: 2.739937s, Average: 91.331233ms

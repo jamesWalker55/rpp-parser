@@ -8,12 +8,12 @@ mod parser;
 mod serialize;
 
 fn write_element_size_tree(
-    mut buf: &mut String,
+    buf: &mut String,
     element: &Element,
     max_percentage: f64,
     indent_level: usize,
 ) {
-    let size = serialize_to_string(&element).len();
+    let size = serialize_to_string(element).len();
 
     // first line
     for _ in 0..indent_level {
@@ -35,7 +35,7 @@ fn write_element_size_tree(
                 lines_size += child.iter().map(|x| x.len() as u64).sum::<u64>()
             }
             parser::Child::Element(child) => {
-                let child_size = serialize_to_string(&child).len();
+                let child_size = serialize_to_string(child).len();
                 records.push((child, child_size as u64));
             }
         }
@@ -52,7 +52,7 @@ fn write_element_size_tree(
 
     // reverse iterate
     for (element, child_size) in records.iter().rev() {
-        let child_percentage = max_percentage as f64 * *child_size as f64 / size as f64;
+        let child_percentage = max_percentage * *child_size as f64 / size as f64;
 
         if element.tag == "__TEMP_LINES__" {
             for _ in 0..(indent_level + 1) {
@@ -63,14 +63,14 @@ fn write_element_size_tree(
             buf.push_str(format!("{child_percentage:.02}%").as_str());
             buf.push('\n');
         } else {
-            write_element_size_tree(&mut buf, &element, child_percentage, indent_level + 1);
+            write_element_size_tree(buf, element, child_percentage, indent_level + 1);
         }
     }
 }
 
 fn main() {
     let path = r"D:\Audio Projects (Reaper)\New\unwelcome school 2\unwelcome school 2_5.RPP";
-    let rpp = fs::read_to_string(&path).unwrap();
+    let rpp = fs::read_to_string(path).unwrap();
 
     println!("Loaded to string, parsing");
     let element = parser::parse_element(&rpp).unwrap();

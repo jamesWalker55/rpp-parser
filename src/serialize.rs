@@ -1,5 +1,5 @@
 use crate::parser::{Child, Element};
-use std::{borrow::Cow, iter};
+use std::borrow::Cow;
 
 fn serialise_term(text: &str) -> Cow<str> {
     if text.is_empty() {
@@ -54,7 +54,7 @@ pub fn serialize_to_string(element: &Element) -> String {
     buf
 }
 
-fn process<'a>(mut buf: &mut String, element: &'a Element, indent_level: usize) {
+fn process(buf: &mut String, element: &Element, indent_level: usize) {
     // first line
     for _ in 0..indent_level {
         buf.push_str("  ")
@@ -91,7 +91,7 @@ fn process<'a>(mut buf: &mut String, element: &'a Element, indent_level: usize) 
                 buf.push('\n');
             }
             Child::Element(child) => {
-                process(&mut buf, &child, indent_level + 1);
+                process(buf, child, indent_level + 1);
                 buf.push('\n');
             }
         }

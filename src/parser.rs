@@ -84,10 +84,7 @@ fn element(i: Input) -> Result<Element> {
         // keep taking child elements until end of element
         delimited(
             space0,
-            alt((
-                element.map(|x| Child::Element(x)),
-                string_list.map(|x| Child::Line(x)),
-            )),
+            alt((element.map(Child::Element), string_list.map(Child::Line))),
             tuple((space0, line_ending)),
         ),
         // element ends with a single line containing only '>'

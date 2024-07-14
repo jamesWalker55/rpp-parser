@@ -23,3 +23,9 @@ Did 30 loops. Total: 831.428ms, Average: 27.714266ms
 Did 100 loops. Total: 8.0133385s, Average: 80.133385ms
 [release]
 Did 100 loops. Total: 1.9305675s, Average: 19.305675ms
+
+994d04d30827397b78bab96c0df467145e7286d5
+[debug]
+Did 100 loops. Total: 7.2661435s, Average: 72.661435ms
+[release]
+Did 100 loops. Total: 1.7441848s, Average: 17.441848ms

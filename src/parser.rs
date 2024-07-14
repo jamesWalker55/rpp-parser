@@ -2,7 +2,7 @@ use nom::{
     branch::alt,
     bytes::complete::{take_till, take_till1},
     character::complete::{char, line_ending, multispace0, none_of, one_of, space0, space1},
-    combinator::all_consuming,
+    combinator::{all_consuming, not},
     multi::many0,
     sequence::{delimited, preceded, terminated, tuple},
     Finish, Parser,
@@ -81,7 +81,8 @@ fn element(i: Input) -> Result<Element> {
     )(i)?;
 
     let (i, children) = many0(delimited(
-        space0,
+        // don't allow start of line to be closing tag '>'
+        tuple((space0, not(char('>')))),
         alt((
             element.map(|x| Child::Element(x)),
             string_list.map(|x| Child::Line(x)),

@@ -13,9 +13,9 @@ type Input<'a> = &'a str;
 type Result<'a, O = Input<'a>> = nom::IResult<Input<'a>, O>;
 
 pub struct Element<'a> {
-    tag: &'a str,
-    attr: Vec<&'a str>,
-    children: Vec<Child<'a>>,
+    pub tag: &'a str,
+    pub attr: Vec<&'a str>,
+    pub children: Vec<Child<'a>>,
 }
 
 pub enum Child<'a> {

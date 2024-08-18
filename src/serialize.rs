@@ -15,9 +15,6 @@ fn serialise_term(text: &str) -> Cow<str> {
 
     let first_char = text.chars().next().unwrap();
     let mut needs_to_be_quoted = first_char == '\'' || first_char == '"';
-    if !needs_to_be_quoted {
-        return text;
-    }
 
     let mut has_dbl_quote = false;
     let mut has_sgl_quote = false;

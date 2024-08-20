@@ -64,11 +64,11 @@ fn string_list(i: Input) -> Result<Vec<&str>> {
 }
 
 fn element_start(i: Input) -> Result<()> {
-    char('<')(i).map(|(rest, _)| (rest, ()))
+    char('<').map(|_| ()).parse(i)
 }
 
 fn element_end(i: Input) -> Result<()> {
-    char('>')(i).map(|(rest, _)| (rest, ()))
+    char('>').map(|_| ()).parse(i)
 }
 
 fn element_tag(i: Input) -> Result {

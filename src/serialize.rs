@@ -168,6 +168,9 @@ impl Debug for Child<'_> {
                     write!(f, " {x:?}")?;
                 }
             }
+            Child::Text(text) => {
+                write!(f, "|{text:?}")?;
+            }
             Child::Element(element) => {
                 write!(f, "{element:?}")?;
             }
@@ -217,6 +220,16 @@ fn process(buf: &mut String, element: &Element, indent_level: usize) {
                     }
                     buf.push_str(&x);
                 }
+
+                buf.push('\n');
+            }
+            Child::Text(text) => {
+                for _ in 0..=indent_level {
+                    buf.push_str("  ");
+                }
+
+                buf.push('|');
+                buf.push_str(text);
 
                 buf.push('\n');
             }

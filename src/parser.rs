@@ -26,6 +26,8 @@ pub struct Element<'a> {
 pub enum Child<'a> {
     /// An arbitrary line of text, split into a [String] list using RPP's string quoting rules.
     Line(Vec<&'a str>),
+    /// Raw unparsed text, e.g. used in TRACK > NAME or NOTES elements
+    Text(&'a str),
     /// A subelement.
     Element(Element<'a>),
 }
@@ -63,6 +65,20 @@ fn string_list(i: Input<'_>) -> Result<'_, Vec<&str>> {
     Ok((i, other_elements))
 }
 
+/// Parse a child line that starts with a `|`, e.g.:
+/// ```plain
+/// <NAME
+///   |asd ''""`
+/// >
+/// <NOTES
+///   |asd
+///   |!@#H(ON  ' " "" ''
+/// >
+/// ```
+fn raw_text_child(i: Input) -> Result<&str> {
+    preceded(char('|'), take_till(|x| x == '\n' || x == '\r'))(i)
+}
+
 fn element_start(i: Input) -> Result<()> {
     char('<').map(|_| ()).parse(i)
 }
@@ -91,7 +107,11 @@ fn element(i: Input) -> Result<Element> {
         // keep taking child elements until end of element
         delimited(
             space0,
-            alt((element.map(Child::Element), string_list.map(Child::Line))),
+            alt((
+                raw_text_child.map(Child::Text),
+                element.map(Child::Element),
+                string_list.map(Child::Line),
+            )),
             tuple((space0, line_ending)),
         ),
         // element ends with a single line containing only '>'
